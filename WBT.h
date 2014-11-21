@@ -5,6 +5,8 @@
 //  Copyleft (c) 2014 UdeS
 //
 //  Modification par:
+//      Ian Oscar Vasquez Gutierrez     12 202 430
+//      Alexandre Blais                 14 090 690
 //
 
 #ifndef WBT_WBT_h
@@ -45,20 +47,20 @@ public:
     WBT(const WBT&);
     WBT& operator=(const WBT&);
     void swap(WBT&);
-
+    
     size_t size()const{return RACINE.POIDS;}
     bool empty()const{return RACINE.POIDS==0;}
     void clear();
-
+    
     iterator find(const TYPE&)const;
     std::pair<iterator,bool> insert(const TYPE&);
     size_t erase(const TYPE&);
     iterator erase(iterator);
-
+    
     //fonction d'iteration
     iterator begin()const{return iterator(RACINE.DROITE);}
     iterator end()const{return iterator(FIN);}
-
+    
     //fonction de mise au point
     void afficher()const;
 };
@@ -94,7 +96,7 @@ void WBT<TYPE>::vider(noeud*& p){
     vider(p->GAUCHE);
     vider(p->DROITE);
     delete p;
-    }
+}
 
 template <typename TYPE>
 void WBT<TYPE>::copier(noeud* source,noeud*& dest,noeud* parent){
@@ -104,7 +106,7 @@ void WBT<TYPE>::copier(noeud* source,noeud*& dest,noeud* parent){
     RACINE.DROITE=dest;
     copier(source->DROITE,dest->DROITE,dest);
     copier(source->GAUCHE,dest->GAUCHE,dest);
-    }
+}
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -118,18 +120,18 @@ bool WBT<TYPE>::insert(const TYPE& c,noeud*& p,iterator& r){
             ++(p->POIDS);
             reequilibrer(p);
             return true;
-            }
         }
+    }
     else if(c>p->CONTENU){
         if(ajoute_droite(c,p,r)){
             ++(p->POIDS);
             reequilibrer(p);
             return true;
-            }
         }
+    }
     else r=iterator(p);
     return false;
-    }
+}
 
 template <typename TYPE>
 bool WBT<TYPE>::ajoute_gauche(const TYPE& c,noeud*& p,iterator& r){
@@ -138,7 +140,7 @@ bool WBT<TYPE>::ajoute_gauche(const TYPE& c,noeud*& p,iterator& r){
         r=iterator(p->GAUCHE);
         if(p==RACINE.DROITE)RACINE.DROITE=p->GAUCHE;  //nouveau premier element
         return true;
-        }
+    }
     else                    //ajout general a gauche
         return insert(c,p->GAUCHE,r);
 }
@@ -160,95 +162,91 @@ bool WBT<TYPE>::ajoute_droite(const TYPE& c,noeud*& p,iterator& r){
 
 template <typename TYPE>
 void WBT<TYPE>::reequilibrer(noeud*& p){
-
-    if (!p->DROITE || !p->GAUCHE || !p)
+    
+    if ( p->GAUCHE==nullptr|| p->DROITE == nullptr ||p==nullptr)
     {
         return;
     }
-
+    
     if(p->GAUCHE->POIDS *3 <= p->DROITE->POIDS) {
         if (p->GAUCHE->POIDS >= p->DROITE->DROITE->POIDS) {
             rotation_gauche_droite(p->DROITE);
         }
         rotation_droite_gauche(p);
+        
     } else if (p->DROITE->POIDS *3 <= p->GAUCHE->POIDS) {
         if (p->DROITE->POIDS >= p->GAUCHE->GAUCHE->POIDS) {
             rotation_droite_gauche(p->GAUCHE);
         }
         rotation_gauche_droite(p);
     }
+    
+}
 
-    }
+
 
 template <typename TYPE>
 void WBT<TYPE>::rotation_gauche_droite(noeud*& p){
-
-	noeud* temp = p->GAUCHE;
-
-	if (temp->DROITE)
-		p->GAUCHE = temp->DROITE;
-	else
-		p->GAUCHE = nullptr;
-
-	temp->DROITE = p;
-	temp->PARENT = p->PARENT;
-
-	p = temp->DROITE;
-	p->PARENT = temp;
-
+    
+    noeud* temp = p->GAUCHE;
+    
+    if (temp->DROITE!= nullptr)
+        p->GAUCHE = temp->DROITE;
+    else
+        p->GAUCHE = nullptr;
+    
+    temp->DROITE = p;
+    temp->PARENT = p->PARENT;
+    
+    p = temp->DROITE;
+    p->PARENT = temp;
+    
     p->POIDS = p->DROITE->POIDS + 1;
-    if (p->GAUCHE) {
+    if (p->GAUCHE != nullptr) {
         p->POIDS += p->GAUCHE->POIDS;
     }
-
+    
     temp->POIDS = temp->DROITE->POIDS + 1;
-    if (temp->GAUCHE) {
+    if (temp->GAUCHE != nullptr) {
         temp->POIDS += temp->GAUCHE->POIDS;
     }
-
-    }
+    p = temp;
+}
 
 template <typename TYPE>
 void WBT<TYPE>::rotation_droite_gauche(noeud*& p){
-
-	noeud* temp = p->DROITE;
-
-	if (temp->GAUCHE)
-		p->DROITE = temp->GAUCHE;
-	else
-		p->DROITE = nullptr;
-
-	temp->GAUCHE = p;    noeud* temp = p->DROITE;
-
-	if (temp->GAUCHE != nullptr)
-		p->DROITE = temp->GAUCHE;
-	else
-		p->DROITE = nullptr;
-
-	temp->GAUCHE = p;
-	temp->PARENT = p->PARENT;
-
-	p = temp->GAUCHE;
-
-
-
+    
+    noeud* temp = p->DROITE;
+    
+    if (temp->GAUCHE != nullptr)
+        p->DROITE = temp->GAUCHE;
+    else
+        p->DROITE = nullptr;
+    
+    temp->GAUCHE = p;
+    
+    
+    temp->GAUCHE = p;
+    temp->PARENT = p->PARENT;
+    
+    p = temp->GAUCHE;
+    
+    
+    
     p -> PARENT = temp;
-	temp->PARENT = p->PARENT;
-
-	p = temp->GAUCHE;
-	p->PARENT = temp;
-
+    
+    
     p->POIDS = p->GAUCHE->POIDS + 1;
-    if (p->DROITE) {
+    if (p->DROITE != nullptr) {
         p->POIDS += p->DROITE->POIDS;
     }
-
+    
     temp->POIDS = temp->GAUCHE->POIDS + 1;
-    if (temp->DROITE) {
+    if (temp->DROITE != nullptr) {
         temp->POIDS += temp->DROITE->POIDS;
     }
-
-    }
+    p = temp;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -264,20 +262,20 @@ template <typename TYPE>
 WBT<TYPE>::WBT(const WBT& source):WBT(){
     copier(source.FIN->GAUCHE,FIN->GAUCHE,FIN);
     RACINE.POIDS=source.size();
-    }
+}
 
 template <typename TYPE>
 WBT<TYPE>& WBT<TYPE>::operator=(const WBT& source){
     WBT<TYPE> copie(source);
     this->swap(copie);
     return *this;
-    }
+}
 
 template <typename TYPE>
 void WBT<TYPE>::swap(WBT& source){
     std::swap(FIN,source.FIN);
     std::swap(RACINE,source.RACINE);
-    }
+}
 
 template <typename TYPE>
 void WBT<TYPE>::clear(){
@@ -310,9 +308,9 @@ std::pair<typename WBT<TYPE>::iterator,bool> WBT<TYPE>::insert(const TYPE& c){
         if(insert(c,RACINE.GAUCHE,retour)){
             ++RACINE.POIDS;
             return std::make_pair(retour,true);
-            }
-        else return std::make_pair(retour,false);
         }
+        else return std::make_pair(retour,false);
+    }
 }
 
 template <typename TYPE>
@@ -322,35 +320,35 @@ size_t WBT<TYPE>::erase(const TYPE& c){
     if(i!=end())erase(i);
     else resultat=0;
     return resultat;
-    }
+}
 
 template <typename TYPE>
 typename WBT<TYPE>::iterator WBT<TYPE>::erase(iterator i){
     noeud *p=i.POINTEUR,*temp,*enf,*pa;
-
+    
     //preparer le resultat
     iterator resultat=i;
     ++resultat;
     if(i==begin())RACINE.DROITE=resultat.POINTEUR;
-
+    
     //identifier l'element a enlever physiquement
     if(p->GAUCHE!=nullptr){
         for(temp=p->GAUCHE;temp->DROITE!=nullptr;)temp=temp->DROITE;
         p->CONTENU=temp->CONTENU;
-        }
+    }
     else if(p->DROITE!=nullptr){
         for(temp=p->DROITE;temp->GAUCHE!=nullptr;)temp=temp->GAUCHE;
         p->CONTENU=temp->CONTENU;
-        }
+    }
     else temp=p;
-
+    
     pa=temp->PARENT;
     enf=temp->GAUCHE;
     if(enf==nullptr)enf=temp->DROITE;
     if(pa->GAUCHE==temp)pa->GAUCHE=enf;
     else pa->DROITE=enf;
     delete temp;
-
+    
     //remonter pour mettre les poids a jour
     for(;;){
         --pa->POIDS;
@@ -359,8 +357,8 @@ typename WBT<TYPE>::iterator WBT<TYPE>::erase(iterator i){
         if(pa==nullptr)break;
         if(pa->GAUCHE==p)reequilibrer(p->GAUCHE);
         else reequilibrer(p->DROITE);
-        }
-
+    }
+    
     return resultat;
 }
 
@@ -378,7 +376,7 @@ void WBT<TYPE>::iterator::avancer(noeud*& p){
         noeud* pa;
         for(pa=p->PARENT;pa->GAUCHE!=p;p=pa,pa=p->PARENT);
         p=pa;
-        }
+    }
 }
 
 template <typename TYPE>
@@ -392,7 +390,7 @@ void WBT<TYPE>::iterator::reculer(noeud*& p){
         p=pa;
     }
     assert(p->PARENT!=nullptr);
-
+    
 }
 
 
@@ -419,14 +417,14 @@ template <typename TYPE>
 void WBT<TYPE>::afficher(WBT<TYPE>::noeud* p,int niveau,std::vector<std::string>& barres)const{
     using namespace std;
     if(p==0)return;
-
+    
     if(niveau>=barres.size())barres.push_back("    ");
-
+    
     afficher(p->DROITE,niveau+1,barres);
-
+    
     //si on est un enfant de gauche arreter les barres a ce niveau
     if(p->PARENT!=0 && p->PARENT->GAUCHE==p)barres[niveau-1]="    ";
-
+    
     //cout<<niveau;
     afficher_barres(barres,niveau);
     cout<<"--->";
@@ -436,18 +434,18 @@ void WBT<TYPE>::afficher(WBT<TYPE>::noeud* p,int niveau,std::vector<std::string>
     cout<<", gau="<<p->GAUCHE;;
     cout<<", dro="<<p->DROITE;
     cout<<")"<<endl;
-
+    
     //si on est un enfant de droite barre a mon niveau
     if(p->PARENT!=0 && p->PARENT->DROITE==p)barres[niveau-1]="   |";
-
+    
     //si on a un enfant a gauche mettre des barres apres
     if(p->GAUCHE!=0)barres[niveau]="   |";
     else barres[niveau]="    ";
-
+    
     //cout<<niveau;
     afficher_barres(barres,niveau+1);
     cout<<endl;
-
+    
     afficher(p->GAUCHE,niveau+1,barres);
 }
 
@@ -458,4 +456,4 @@ void WBT<TYPE>::afficher_barres(std::vector<std::string>& barres,int n)const{
 
 
 
-#endif
+#endif

@@ -183,20 +183,18 @@ void WBT<TYPE>::reequilibrer(noeud*& p){
 template <typename TYPE>
 void WBT<TYPE>::rotation_gauche_droite(noeud*& p){
 
-    noeud* temp = p->GAUCHE;
+	noeud* temp = p->GAUCHE;
 
-    if (p == p->PARENT->GAUCHE) {
-        p->PARENT -> GAUCHE = temp;
-    } else {
-        p->PARENT -> DROITE = temp;
-    }
-    temp->PARENT = p->PARENT;
+	if (temp->DROITE)
+		p->GAUCHE = temp->DROITE;
+	else
+		p->GAUCHE = nullptr;
 
-    if (temp->DROITE) {
-        p->GAUCHE = temp->DROITE;
-    }
-    p->PARENT = temp;
-    temp->DROITE = p;
+	temp->DROITE = p;
+	temp->PARENT = p->PARENT;
+
+	p = temp->DROITE;
+	p->PARENT = temp;
 
     p->POIDS = p->DROITE->POIDS + 1;
     if (p->GAUCHE) {
@@ -213,20 +211,32 @@ void WBT<TYPE>::rotation_gauche_droite(noeud*& p){
 template <typename TYPE>
 void WBT<TYPE>::rotation_droite_gauche(noeud*& p){
 
-    noeud* temp = p->DROITE;
+	noeud* temp = p->DROITE;
 
-    if (p == p->PARENT->DROITE) {
-        p->PARENT -> DROITE = temp;
-    } else {
-        p->PARENT -> GAUCHE = temp;
-    }
-    temp->PARENT = p->PARENT;
+	if (temp->GAUCHE)
+		p->DROITE = temp->GAUCHE;
+	else
+		p->DROITE = nullptr;
 
-    if (temp->GAUCHE) {
-        p->DROITE = temp->GAUCHE;
-    }
-    p->PARENT = temp;
-    temp->GAUCHE = p;
+	temp->GAUCHE = p;    noeud* temp = p->DROITE;
+
+	if (temp->GAUCHE != nullptr)
+		p->DROITE = temp->GAUCHE;
+	else
+		p->DROITE = nullptr;
+
+	temp->GAUCHE = p;
+	temp->PARENT = p->PARENT;
+
+	p = temp->GAUCHE;
+
+
+
+    p -> PARENT = temp;
+	temp->PARENT = p->PARENT;
+
+	p = temp->GAUCHE;
+	p->PARENT = temp;
 
     p->POIDS = p->GAUCHE->POIDS + 1;
     if (p->DROITE) {
